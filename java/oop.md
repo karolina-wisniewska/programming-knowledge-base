@@ -210,6 +210,15 @@ Tak. Często używam dziedziczenia do modelowania typu (np. wspólna klasa bazow
 5. Podaj przykład praktyczny.
 6. Wskaż wyjątki.
 
+### Przykładowa odpowiedź (gotowiec do powiedzenia)
+
+„Dziedziczenie wykorzystuję wtedy, gdy istnieje realna relacja typu *is-a* i jestem pewien stabilności abstrakcji. Problem z dziedziczeniem polega na silnym sprzężeniu i ryzyku naruszenia LSP.  
+
+Dlatego w większości przypadków preferuję kompozycję, szczególnie gdy buduję zachowanie lub chcę umożliwić jego dynamiczną zmianę. Kompozycja lepiej wspiera OCP i testowalność, bo mogę podmieniać zależności przez interfejsy.  
+
+Jednocześnie nie traktuję tej zasady dogmatycznie — w stabilnych hierarchiach domenowych dziedziczenie jest w pełni uzasadnione.”
+
+
 ---
 
 ## 11. Dojrzała perspektywa mid developera
