@@ -1,3 +1,4 @@
 # programming-knowledge-base
 
-* [♨️ Java](java/java.md#-java)
+## ♨️ Java
+* [OOP: Kompozycja vs dziedziczenie](java/oop.md#-java)
