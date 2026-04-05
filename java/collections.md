@@ -16,14 +16,16 @@ Główne cele:
 
 ### 2.1 Główne interfejsy
 
+```text
 Iterable
 └── Collection
-├── List
-├── Set
-└── Queue
-└── Deque
-Map (osobna hierarchia)
+    ├── List
+    ├── Set
+    ├── Queue
+    └── Deque
 
+Map (osobna hierarchia)
+```
 
 ### 2.2 Charakterystyka
 
