@@ -127,6 +127,262 @@ Dla HashSet:
 
 ---
 
+### 5.3 Zależność między HashSet a HashMap
+
+#### 1. Kluczowa idea
+
+`HashSet` jest w rzeczywistości **oparty na `HashMap`**.
+
+Oznacza to, że:
+- `HashSet` **nie przechowuje elementów samodzielnie**
+- wewnętrznie używa `HashMap`, gdzie:
+  - element zbioru (`Set`) jest kluczem (`key`)
+  - wartość (`value`) jest stałą atrapą (dummy value)
+
+---
+
+#### 2. Implementacja wewnętrzna
+
+Uproszczona wersja implementacji `HashSet`:
+
+```java
+public class HashSet<E> extends AbstractSet<E> {
+    private transient HashMap<E, Object> map;
+
+    private static final Object PRESENT = new Object();
+
+    public boolean add(E e) {
+        return map.put(e, PRESENT) == null;
+    }
+}
+```
+---
+
+#### 3. Co to oznacza w praktyce?
+3.1 Brak duplikatów
+- `HashMap` nie pozwala na duplikaty kluczy
+- `HashSet` wykorzystuje tę właściwość
+
+```java
+set.add("A");
+set.add("A"); // drugi element zostanie zignorowany
+```
+Dlaczego?
+
+- `map.put(key, value)` nadpisuje istniejący wpis
+- `HashSet` interpretuje to jako brak dodania nowego elementu
+
+---
+
+3.2 equals() i hashCode()
+
+Zachowanie `HashSet` zależy bezpośrednio od implementacji `HashMap`, czyli:
+
+- najpierw używany jest `hashCode()`
+- potem `equals()`
+
+Proces:
+
+1. obliczenie `hashCode()`
+2. znalezienie bucketu
+3. porównanie przez `equals()`
+
+---
+
+3.3 Złożoność operacji
+
+Ponieważ `HashSet` używa `HashMap`:
+
+| Operacja | Złożoność |
+| -------- | --------- |
+| add      | O(1)      |
+| remove   | O(1)      |
+| contains | O(1)      |
+
+(w średnim przypadku)
+
+---
+
+#### 4. Jak wygląda struktura w pamięci?
+HashMap:
+
+```bucket[] -> (key, value)```
+
+HashSet:
+
+```bucket[] -> (element, PRESENT)```
+
+Czyli:
+
+HashSet to de facto **HashMap bez znaczących wartości**
+
+---
+
+#### 5. Konsekwencje tej zależności
+5.1 Wydajność
+
+identyczna jak `HashMap` dla operacji na kluczach
+
+---
+
+5.2 Zużycie pamięci
+
+`HashSet` zużywa więcej pamięci niż teoretycznie potrzebne:
+- przechowuje dodatkowy obiekt `PRESENT`
+- każdy element to wpis mapy (Entry/Node)
+
+---
+5.3 Zachowanie przy kolizjach
+- dokładnie takie samo jak w `HashMap`
+- od Java 8: lista → drzewo czerwono-czarne przy dużej liczbie kolizji
+
+---
+#### 6. Iteracja
+
+Iteracja po `HashSet`:
+
+```java
+for (String s : set) {
+    System.out.println(s);
+} 
+```
+
+Pod spodem:
+
+- iteracja po `map.keySet()`
+
+---
+
+#### 7. Usuwanie elementów
+```java set.remove("A");```
+
+Pod spodem:
+
+```java map.remove("A");```
+
+---
+
+#### 8. contains()
+
+```java set.contains("A");```
+
+Pod spodem:
+
+```java map.containsKey("A");```
+
+---
+
+#### 9. Dlaczego nie używać HashMap zamiast HashSet?
+
+Teoretycznie można:
+
+```java Map<String, Boolean> map = new HashMap<>();```
+
+Ale:
+
+- semantyka jest niepoprawna (mapa ≠ zbiór)
+- większa podatność na błędy
+- brak czytelności
+
+---
+
+#### 10. Edge cases i pułapki
+
+10.1 Mutable keys
+
+```java Set<Person> set = new HashSet<>();
+Person p = new Person("Jan");
+
+set.add(p);
+p.setName("Adam");
+
+set.contains(p); // może zwrócić false
+```
+
+Dlaczego:
+
+- zmienia się hashCode → inny bucket
+
+--- 
+
+10.2 Słaby hashCode()
+
+- dużo kolizji
+
+- degradacja wydajności do O(n)
+
+---
+
+10.3 equals() niezgodny z hashCode()
+- elementy mogą się "duplikować"
+- contains() może nie działać
+---
+
+#### 11. Różnice koncepcyjne
+| Cecha          | HashSet              | HashMap              |
+|----------------|----------------------|----------------------|
+| przechowywanie | unikalne elementy   | klucz → wartość     |
+| duplikaty      | brak                 | brak dla kluczy     |
+| dostęp         | contains             | get                  |
+| implementacja  | oparta o HashMap     | natywna              |
+
+#### 12. Pytania rekrutacyjne (mid)
+1. Jak HashSet działa wewnętrznie?
+
+Odpowiedź:
+HashSet używa HashMap. Elementy są przechowywane jako klucze, a wartość to stały obiekt (PRESENT).
+
+2. Dlaczego HashSet nie pozwala na duplikaty?
+
+Odpowiedź:
+Ponieważ HashMap nie pozwala na duplikaty kluczy.
+
+3. Czy HashSet przechowuje wartości?
+
+Odpowiedź:
+Nie – przechowuje tylko klucze, a wartości są atrapą.
+
+4. Czy HashSet może zawierać null?
+
+Odpowiedź:
+Tak – jeden element null (bo HashMap pozwala na jeden null key).
+
+5. Co się stanie przy złym hashCode?
+
+Odpowiedź:
+Wydajność spada (więcej kolizji), może dojść do O(n).
+
+6. Jak działa contains() w HashSet?
+
+Odpowiedź:
+Deleguje do HashMap.containsKey().
+
+7. Czy HashSet i HashMap mają taką samą złożoność?
+
+Odpowiedź:
+Tak, ponieważ HashSet korzysta z HashMap.
+
+8. Dlaczego HashSet zużywa więcej pamięci niż lista?
+
+Odpowiedź:
+Bo używa struktury mapy (buckety + node + wartość).
+
+#### 13. Podsumowanie
+
+Najważniejsze wnioski:
+
+HashSet to wrapper nad HashMap
+elementy zbioru = klucze mapy
+brak duplikatów wynika z właściwości HashMap
+wydajność i problemy są identyczne jak w HashMap
+poprawność działania zależy od:
+hashCode()
+equals()
+
+To jedno z najczęściej zadawanych zagadnień na rozmowach technicznych i absolutny must-have dla mid Java developera.
+
+
+
 ## 6. Queue i Deque
 
 ### Queue
