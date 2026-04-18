@@ -5,3 +5,4 @@
 * [Pamięć w aplikacjach: stack, heap oraz garbage collector](java/memory.md)
 * [Kolekcje w Java](java/collections.md)
 * [Stream API](java/stream-api.md)
+* [Lambda](java/lambda.md)
