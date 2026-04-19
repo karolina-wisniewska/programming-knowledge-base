@@ -6,3 +6,4 @@
 * [Kolekcje w Java](java/collections.md)
 * [Stream API](java/stream-api.md)
 * [Lambda](java/lambda.md)
+* [Interfesj vs klasa abstrakcyjna](java/interface-abstract-class.md)
